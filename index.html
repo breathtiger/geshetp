@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>人生導航・學法檢測</title>
+<style>
+  :root{
+    --paper:#F7F2E6; --paper-2:#EFE7D4; --ink:#3A3128; --ink-soft:#7A6E5B;
+    --gold:#9C7A2F; --gold-deep:#7D6023; --lotus:#BC7186; --lotus-soft:#E7C9D1;
+    --line:#DCD1B8; --shadow:0 1px 2px rgba(58,49,40,.05),0 8px 30px rgba(58,49,40,.07);
+    --serif:"Songti TC","STSong","Source Han Serif TC","Noto Serif CJK TC","Noto Serif TC",serif;
+    --sans:"PingFang TC","Heiti TC","Microsoft JhengHei",system-ui,-apple-system,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{-webkit-text-size-adjust:100%}
+  body{font-family:var(--sans);color:var(--ink);background:var(--paper);line-height:1.75;
+    -webkit-font-smoothing:antialiased;display:flex;justify-content:center;min-height:100vh;
+    padding:clamp(16px,4vw,40px)}
+  .stage{width:100%;max-width:560px;margin:auto 0}
+  .screen{display:none;animation:rise .5s cubic-bezier(.2,.7,.2,1) both}
+  .screen.active{display:block}
+  @keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+  @media (prefers-reduced-motion:reduce){.screen{animation:none}}
+
+  .eyebrow{font-size:.78rem;letter-spacing:.32em;color:var(--gold);margin-bottom:1.1rem;font-weight:600}
+  h1{font-family:var(--serif);font-weight:600;font-size:clamp(1.9rem,7vw,2.5rem);line-height:1.35;
+    letter-spacing:.02em;margin-bottom:1.1rem}
+  h2{font-family:var(--serif);font-weight:600;font-size:clamp(1.3rem,5vw,1.65rem);line-height:1.45;margin-bottom:.9rem}
+  p{color:var(--ink-soft)}
+  .lede{font-size:1rem;margin-bottom:1.6rem}
+
+  .hero-lotus{width:150px;height:auto;margin-bottom:1.4rem;display:block}
+
+  .btn{font-family:var(--sans);font-size:1rem;font-weight:600;cursor:pointer;border:none;
+    border-radius:999px;padding:.85rem 2rem;background:var(--gold-deep);color:var(--paper);
+    transition:transform .15s ease,background .2s ease;letter-spacing:.05em}
+  .btn:hover{background:var(--ink);transform:translateY(-1px)}
+  .btn:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
+  .ghost{background:none;color:var(--ink-soft);border:1px solid var(--line);padding:.6rem 1.4rem;
+    font-size:.9rem;font-weight:500}
+  .ghost:hover{background:var(--paper-2);color:var(--ink)}
+  .textlink{background:none;border:none;color:var(--ink-soft);cursor:pointer;font-size:.9rem;
+    font-family:var(--sans);padding:.4rem;text-decoration:underline;text-underline-offset:3px;
+    text-decoration-color:var(--line)}
+  .textlink:hover{color:var(--gold-deep)}
+  .textlink:focus-visible{outline:2px solid var(--gold);outline-offset:2px;border-radius:4px}
+
+  .progress{display:flex;align-items:center;gap:.8rem;margin-bottom:2rem}
+  .bar{flex:1;height:3px;background:var(--line);border-radius:2px;overflow:hidden}
+  .bar span{display:block;height:100%;background:var(--gold);width:0;transition:width .4s cubic-bezier(.2,.7,.2,1)}
+  .count{font-size:.8rem;color:var(--ink-soft);font-variant-numeric:tabular-nums;flex:none}
+  .phase{font-size:.78rem;letter-spacing:.16em;color:var(--gold);margin-bottom:.5rem;font-weight:600}
+  .qtext{font-family:var(--serif);font-size:clamp(1.25rem,5vw,1.55rem);line-height:1.6;margin-bottom:1.6rem}
+  .opts{display:flex;flex-direction:column;gap:.6rem}
+  .opt{text-align:left;background:var(--paper-2);border:1.5px solid transparent;border-radius:12px;
+    padding:.95rem 1.2rem;cursor:pointer;font-family:var(--sans);font-size:1rem;color:var(--ink);
+    line-height:1.6;transition:border-color .15s,background .15s,transform .1s;width:100%}
+  .opt:hover{border-color:var(--gold);transform:translateY(-1px)}
+  .opt.sel{border-color:var(--gold-deep);background:#FDFBF5}
+  .opt:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+  .qnav{margin-top:1.5rem;display:flex;justify-content:space-between;align-items:center}
+
+  .divider{display:flex;align-items:center;gap:.9rem;margin:1.6rem 0}
+  .divider::before,.divider::after{content:"";flex:1;height:1px;background:var(--line)}
+  .divider svg{width:26px;height:auto;flex:none;opacity:.8}
+
+  .interlude blockquote{font-family:var(--serif);font-size:1.08rem;line-height:2;color:var(--ink);
+    border-left:2px solid var(--gold);padding:.3rem 0 .3rem 1.2rem;margin:1.4rem 0 2rem}
+
+  .r-head{text-align:center;margin-bottom:1.6rem}
+  .r-type{font-family:var(--serif);font-size:clamp(1.9rem,7vw,2.4rem);font-weight:600;margin:.4rem 0 .8rem}
+  .r-pos{font-size:1rem;color:var(--ink-soft);max-width:32rem;margin:0 auto;text-align:left}
+  .card{background:var(--paper-2);border-radius:16px;padding:1.4rem;margin-bottom:1.1rem;box-shadow:var(--shadow)}
+  .card h3{font-family:var(--serif);font-size:1.12rem;font-weight:600;margin-bottom:.9rem;
+    display:flex;align-items:center;gap:.55rem}
+  .card h3 svg{width:18px;height:auto;flex:none}
+  .tierviz{display:block;width:100%;max-width:420px;margin:0 auto .2rem;height:auto}
+  .tiercap{text-align:center;font-size:.82rem;color:var(--ink-soft);margin-bottom:.2rem}
+
+  .pr-row{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:.5rem}
+  .pr-row b{font-family:var(--serif);font-size:2rem;font-variant-numeric:tabular-nums}
+  .pr-row .mode{font-weight:600;color:var(--gold-deep)}
+  .pr-bar{height:8px;background:#FBF8F0;border:1px solid var(--line);border-radius:99px;overflow:hidden;margin-bottom:.4rem}
+  .pr-bar span{display:block;height:100%;background:linear-gradient(90deg,var(--gold),var(--lotus));width:0;transition:width 1.2s cubic-bezier(.2,.7,.2,1)}
+  .pr-scale{display:flex;justify-content:space-between;font-size:.72rem;color:var(--ink-soft);margin-bottom:1rem}
+  .verdict{font-size:.96rem;line-height:1.85;color:var(--ink)}
+  .tip{font-size:.95rem;line-height:1.85;color:var(--ink)}
+  .note{font-size:.86rem;color:var(--ink-soft);line-height:1.7;margin-top:.7rem;padding-top:.7rem;border-top:1px dashed var(--line)}
+  blockquote.close{font-family:var(--serif);font-size:1.08rem;line-height:2;color:var(--ink);
+    border-left:2px solid var(--lotus);padding:.3rem 0 .3rem 1.2rem;margin:2.2rem 0 1.8rem}
+  .footer{text-align:center;margin-top:1.2rem}
+  .brand{text-align:center;margin-top:2.4rem;font-size:.76rem;color:var(--ink-soft);letter-spacing:.05em;opacity:.7}
+</style>
+</head>
+<body>
+<main class="stage">
+
+  <!-- 開場 -->
+  <section id="s-intro" class="screen active">
+    <svg class="hero-lotus" viewBox="0 0 140 92" aria-hidden="true" id="heroLotus"></svg>
+    <div class="eyebrow">人生導航・學法檢測</div>
+    <h1>你發問的深度，<br>和你實際下的功夫，<br>對得上嗎？</h1>
+    <p class="lede">這是一面鏡子，不是一張成績單。<br>
+      兩個階段，約三分鐘——先定位你此刻的思惟層次，再誠實照一照：你的日常，把學法過成了哪一種事。</p>
+    <button class="btn" id="start">開始檢測</button>
+  </section>
+
+  <!-- 第一階段：Decision Tree -->
+  <section id="s-tree" class="screen">
+    <div class="progress"><div class="bar"><span id="t-bar"></span></div><div class="count" id="t-count">1 / 3</div></div>
+    <div class="phase">第一階段 · 思惟層次</div>
+    <div class="qtext" id="t-q"></div>
+    <div class="opts" id="t-opts"></div>
+    <div class="qnav"><button class="textlink" id="t-prev">← 上一題</button><span></span></div>
+  </section>
+
+  <!-- 過場 -->
+  <section id="s-inter" class="screen interlude">
+    <div class="phase">第二階段 · 三種事檢測</div>
+    <h2>接下來，看的不是你怎麼想，<br>而是你實際怎麼過。</h2>
+    <blockquote>有一種分法，把所有事分成三種——絕不可做的事、非做不可的事、可有可無的事。多數人<b>說</b>自己重視學法，但<b>日常的樣態</b>卻把它過成第三種。</blockquote>
+    <p class="lede">以下八題，請按真實情況作答，不必替自己美化。</p>
+    <button class="btn" id="toStage2">我準備好了</button>
+  </section>
+
+  <!-- 第二階段 -->
+  <section id="s-quiz" class="screen">
+    <div class="progress"><div class="bar"><span id="p-bar"></span></div><div class="count" id="p-count">1 / 8</div></div>
+    <div class="phase" id="q-dim"></div>
+    <div class="qtext" id="q-text"></div>
+    <div class="opts" id="q-opts"></div>
+    <div class="qnav"><button class="textlink" id="q-prev">← 上一題</button><span class="count" style="font-size:.8rem">點選即前進</span></div>
+  </section>
+
+  <!-- 結果 -->
+  <section id="s-result" class="screen">
+    <div class="r-head">
+      <div class="eyebrow">你的人生定位</div>
+      <div class="r-type" id="r-type"></div>
+      <p class="r-pos" id="r-pos"></p>
+    </div>
+
+    <div class="card">
+      <h3><svg viewBox="0 0 140 92" id="ic1"></svg>你此刻的思惟層次</h3>
+      <div class="tiercap">思惟如蓮，層層開展</div>
+      <svg class="tierviz" id="tierviz" viewBox="0 0 440 170" role="img" aria-label="思惟層次：蓮花三階開展圖"></svg>
+    </div>
+
+    <div class="card">
+      <h3><svg viewBox="0 0 140 92" id="ic2"></svg>三種事診斷</h3>
+      <div class="pr-row"><b><span id="r-prac">0</span><small style="font-size:.9rem;color:var(--ink-soft)"> /100</small></b><span class="mode" id="r-mode"></span></div>
+      <div class="pr-bar"><span id="r-prbar"></span></div>
+      <div class="pr-scale"><span>可有可無</span><span>搖擺之間</span><span>非做不可</span></div>
+      <p class="verdict" id="r-verdict"></p>
+    </div>
+
+    <div class="card">
+      <h3><svg viewBox="0 0 140 92" id="ic3"></svg>你的煩惱來源</h3>
+      <p class="tip" id="r-afflict"></p>
+    </div>
+
+    <div class="card">
+      <h3><svg viewBox="0 0 140 92" id="ic4"></svg>建議閱讀開示</h3>
+      <p class="tip">這份測驗的骨架，來自一篇內部開示〈學法是哪一種事〉。<span id="r-reading"></span></p>
+      <p class="note">開示全文不對外公開，歡迎透過粉專私訊或 LINE 索取。</p>
+    </div>
+
+    <div class="card">
+      <h3><svg viewBox="0 0 140 92" id="ic5"></svg>下一步導航</h3>
+      <p class="tip" id="r-next"></p>
+    </div>
+
+    <div class="divider"><svg viewBox="0 0 140 92" id="divLotus"></svg></div>
+
+    <blockquote class="close">最後留兩個問題給你，不必現在回答：<br>對你而言，學法是哪一種事——非做不可，還是可有可無？<br>如果答案是前者，你打算什麼時候開始？</blockquote>
+
+    <div class="footer"><button class="ghost" id="restart">重新檢測</button></div>
+  </section>
+
+  <div class="brand">虎之呼吸科技 · breathtiger.com</div>
+</main>
+
+<script>
+(function(){
+  "use strict";
+  var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion:reduce)").matches;
+  var $ = function(id){return document.getElementById(id);};
+  var NS="http://www.w3.org/2000/svg";
+  function show(id){
+    var s=document.querySelectorAll(".screen");
+    for(var i=0;i<s.length;i++) s[i].classList.remove("active");
+    $(id).classList.add("active");
+    window.scrollTo({top:0,behavior:reduce?"auto":"smooth"});
+  }
+
+  /* ============ 蓮花線描（三階：0含苞 1初綻 2盛開） ============ */
+  var LOTUS_PATHS=[
+    // 含苞：一瓣合攏＋兩側短護瓣
+    ["M70 22 C61 38 61 54 70 68 C79 54 79 38 70 22 Z",
+     "M70 68 C62 60 58 50 59 40",
+     "M70 68 C78 60 82 50 81 40"],
+    // 初綻：中瓣＋內側一對
+    ["M70 16 C61 32 61 50 70 66 C79 50 79 32 70 16 Z",
+     "M70 66 C58 57 51 42 53 27 C62 36 68 51 70 66 Z",
+     "M70 66 C82 57 89 42 87 27 C78 36 72 51 70 66 Z"],
+    // 盛開：中瓣＋內對＋外對＋最外對
+    ["M70 14 C61 30 61 49 70 66 C79 49 79 30 70 14 Z",
+     "M70 66 C58 57 51 42 53 26 C62 35 68 50 70 66 Z",
+     "M70 66 C82 57 89 42 87 26 C78 35 72 50 70 66 Z",
+     "M70 66 C55 62 42 52 37 37 C50 42 62 53 70 66 Z",
+     "M70 66 C85 62 98 52 103 37 C90 42 78 53 70 66 Z",
+     "M70 66 C52 69 34 64 25 52 C40 54 58 61 70 66 Z",
+     "M70 66 C88 69 106 64 115 52 C100 54 82 61 70 66 Z"]
+  ];
+  function lotus(svgEl, stage, stroke, fillMain, sw){
+    svgEl.innerHTML="";
+    LOTUS_PATHS[stage].forEach(function(d,i){
+      var p=document.createElementNS(NS,"path");
+      p.setAttribute("d",d);
+      p.setAttribute("fill", (i===0&&fillMain)?fillMain:"none");
+      p.setAttribute("stroke",stroke);
+      p.setAttribute("stroke-width",sw||2.4);
+      p.setAttribute("stroke-linecap","round");
+      p.setAttribute("stroke-linejoin","round");
+      svgEl.appendChild(p);
+    });
+    // 水面一筆
+    var w=document.createElementNS(NS,"path");
+    w.setAttribute("d","M34 80 Q70 88 106 80");
+    w.setAttribute("fill","none");w.setAttribute("stroke",stroke);
+    w.setAttribute("stroke-width",1.6);w.setAttribute("stroke-linecap","round");
+    w.setAttribute("opacity",".55");
+    svgEl.appendChild(w);
+  }
+
+  /* ============ 第一階段：Decision Tree ============ */
+  var TREE = {
+    Q1:{q:"現在的你，心思最常被哪一類問題佔據？",opts:[
+      {t:"工作、收入、生活的壓力",next:"J2"},
+      {t:"情緒起伏、家庭與人際關係",next:"J2"},
+      {t:"快樂總留不住、人生的意義到底是什麼",next:"L2"},
+      {t:"死了之後去哪裡、生死輪迴是不是真的",next:"C2"}]},
+    J2:{q:"假如眼前這些問題全都解決了，你覺得之後會如何？",opts:[
+      {t:"應該就能安穩過日子了",k:"a",next:"J3"},
+      {t:"大概還是會冒出新的不安",k:"b",next:"J3"}]},
+    J3:{q:"「死了之後會去哪裡」這個問題，你？",opts:[
+      {t:"很少想，覺得太遠了",k:"a",end:true},
+      {t:"偶爾想起，心裡有點不安",k:"b",end:true},
+      {t:"想把它弄清楚",k:"c",end:true}]},
+    L2:{q:"對「有前後世、有業果」，你目前的態度是？",opts:[
+      {t:"半信半疑，還沒認真研究過",k:"a",next:"L3"},
+      {t:"大致相信，也會影響我的抉擇",k:"b",next:"L3"}]},
+    L3:{q:"就算來生能投生到很好的地方，你覺得問題就解決了嗎？",opts:[
+      {t:"那樣應該就很好了",k:"a",end:true},
+      {t:"不——還是會再死、再生，沒完沒了",k:"b",end:true}]},
+    C2:{q:"你想「脫離」的，比較接近哪一個？",opts:[
+      {t:"眼前這段辛苦的日子",k:"a",next:"C3"},
+      {t:"這種不斷重複的生死本身",k:"b",next:"C3"}]},
+    C3:{q:"對你而言，佛法在這條路上是？",opts:[
+      {t:"眾多方法中的一種",k:"a",end:true},
+      {t:"唯一走得通的路",k:"b",end:true}]}
+  };
+  var path=[], tier=null;
+  function decideTier(){
+    var keys={};
+    path.forEach(function(s){ keys[s.node]=TREE[s.node].opts[s.optIdx].k || null; });
+    if("J3" in keys){ if(keys.J3==="c")return 1; if(keys.J2==="b"&&keys.J3==="b")return 1; return 0; }
+    if("L3" in keys){ return keys.L3==="b"?2:1; }
+    if("C3" in keys){ if(keys.C2==="a")return 0; return keys.C3==="b"?2:1; }
+    return 0;
+  }
+  function renderTree(){
+    var node = path.length===0 ? "Q1" : TREE[path[path.length-1].node].opts[path[path.length-1].optIdx].next;
+    var n=TREE[node];
+    $("t-q").textContent=n.q;
+    $("t-count").textContent=(path.length+1)+" / 3";
+    $("t-bar").style.width=(path.length/3*100)+"%";
+    var box=$("t-opts"); box.innerHTML="";
+    n.opts.forEach(function(o,i){
+      var b=document.createElement("button");
+      b.className="opt"; b.textContent=o.t;
+      b.addEventListener("click",function(){
+        b.classList.add("sel");
+        setTimeout(function(){
+          path.push({node:node,optIdx:i});
+          if(o.end){ tier=decideTier(); $("t-bar").style.width="100%"; show("s-inter"); }
+          else renderTree();
+        }, reduce?0:200);
+      });
+      box.appendChild(b);
+    });
+    $("t-prev").style.visibility = path.length===0 ? "hidden":"visible";
+  }
+  $("t-prev").addEventListener("click",function(){ if(path.length){ path.pop(); renderTree(); } });
+
+  /* ============ 第二階段：8 題 ============ */
+  var DIMS=["相續（時間）","相續（時間）","逆緣（考驗）","逆緣（考驗）","動機（純度）","動機（純度）","思惟（落實）","思惟（落實）"];
+  var QS=[
+    "我有固定的學法／用功時段，而不是「有空才學」。",
+    "忙碌或疲累的時期，我的功課仍會以某種形式持續，不會整段消失。",
+    "遇到阻礙（家人不支持、環境改變、心情低落）時，我不會因此把學法擱下。",
+    "過去一年，我的學法是穩定的，沒有明顯「一熱一冷、斷斷續續」的循環。",
+    "我學佛主要不是為了人情、形象，或某個圈子的歸屬感。",
+    "就算學佛不會帶來任何名聲或他人肯定，我還是會學。",
+    "聽聞或閱讀之後，我會把法義放到自己真實的生命處境上思惟。",
+    "對「前後世是否存在」這類根本問題，我曾認真思考研究，而不是一直擱著。"
+  ];
+  var OPTIONS=[["從不",0],["偶爾",1],["時常",2],["幾乎總是",3]];
+  var answers=new Array(8).fill(null), cur=0;
+  function renderQ(){
+    $("q-dim").textContent="第二階段 · "+DIMS[cur];
+    $("q-text").textContent=QS[cur];
+    $("p-count").textContent=(cur+1)+" / 8";
+    $("p-bar").style.width=(cur/8*100)+"%";
+    var box=$("q-opts"); box.innerHTML="";
+    OPTIONS.forEach(function(o){
+      var b=document.createElement("button");
+      b.className="opt"+(answers[cur]===o[1]?" sel":"");
+      b.textContent=o[0];
+      b.addEventListener("click",function(){
+        answers[cur]=o[1];
+        var all=box.querySelectorAll(".opt");
+        for(var k=0;k<all.length;k++) all[k].classList.remove("sel");
+        b.classList.add("sel");
+        setTimeout(function(){
+          if(cur<7){cur++;renderQ();}
+          else {$("p-bar").style.width="100%"; result();}
+        }, reduce?0:200);
+      });
+      box.appendChild(b);
+    });
+    $("q-prev").style.visibility = cur===0?"hidden":"visible";
+  }
+  $("q-prev").addEventListener("click",function(){ if(cur>0){cur--;renderQ();} });
+
+  /* ============ 內容資料 ============ */
+  var TYPES=["今生改善型","來生思惟型","出離思惟型"];
+  var POS=[
+    "你此刻真正的戰場在今生——情緒、工作、關係。你希望佛法讓日子過得穩一點、心安一點。這是完全正當的起點；許多人正是先嚐到「遇到困難時，學過的法自己會運作起來」的好處，才走得更深。",
+    "你已經開始問「這輩子之外」的問題——前後世是否存在、業果是不是真的。這一層的關鍵不是信不信，而是有沒有下功夫去確認：它是可以透過案例與理路認真研究的事，不該一直懸著。",
+    "你看見的問題不是某一段日子，而是「不斷重複的生死」本身。這是最深的一層發問——而它也最考驗人：口中的出離，跟日常實際的用功，常常是兩回事。這正是第二階段照出來的鏡子。"
+  ];
+  var MODES=["可有可無","搖擺之間","非做不可"];
+  var VERDICT=[
+    ["你可能只在壓力大時才想起佛法，像備用藥而不是日常飲食。從每天十分鐘的固定時段開始，先讓它成為生活的一部分。",
+     "你有受用也有用功，但容易被生活淹沒。先把功課定量定時，讓「穩」先站住，再談加深。",
+     "你目標務實、行動扎實，已經在收穫佛法對今生的幫助。下一步不是更用力，而是把發問加深：快樂留得住嗎？這輩子之外呢？"],
+    ["你問的問題很深，日常卻幾乎沒有為它安排任何行動——這個落差值得正視。問題不會因為擱著而消失。",
+     "你心裡掛著根本問題，行動卻還沒跟上；「懸而未決」正是最消耗的狀態。給自己一個期限，認真研究它，而不是一直擱著。",
+     "你的發問與行動是相稱的——正在認真對待「前後世與業果」這個根本問題。保持研究的力道，讓半信半疑走向確定。"],
+    ["這是最需要誠實面對的落差：口中是最深的目標，日常卻把它過成可有可無。與其自責，不如把目標暫時降回你真正願意行動的層次，從那裡老實開始。",
+     "你說的是出離，日常卻常被名利、人情與慣性拉回老路——這是這條路上最典型的困局。看見它，就是修行的下手處。",
+     "難得——你的發問最深，用功也相稱。這一層最需要善知識與正見把關，別讓路走偏；也別忘了把心力分給最根本的思惟。"]
+  ];
+  var AFFLICT=[
+    "心思繞著工作、家人、財富、名聲打轉，被眼前的小苦小樂佔滿——不是不想深入，是「連想的空檔都沒有」。",
+    "懸置的不安——根本問題掛在心上卻遲遲不研究、不確認，於是既放不下、也走不深。",
+    "捨不下——名聞利養、人情與習慣，一次次把人從清淨的用功拉回老路；發心與行動之間的落差本身，成了最大的消耗。"
+  ];
+  var READING=[
+    "特別推薦其中談「學佛能為今生帶來什麼」的段落。",
+    "特別推薦其中談「人生不是只有這輩子」與「前後世與業果」的段落。",
+    "特別推薦其中談「輪迴與解脫」與「法為何不學不行」的段落。"
+  ];
+  var NEXT=[
+    "本週每天留十分鐘給一個固定功課（靜坐、念佛或閱讀皆可），並在週末想一個問題：「這些快樂，留得住嗎？」",
+    "給自己三十天，認真研究「前後世是否存在」——找可靠的講述與理路，把半信半疑推向一個誠實的結論。",
+    "列出此刻最捨不下的三件事（名聲、關係、習慣皆可），下週先對其中一件做一次小小的鬆手；並確認你有可請益的善知識。"
+  ];
+
+  /* ============ 結果 ============ */
+  function result(){
+    var sum=answers.reduce(function(a,b){return a+b;},0);
+    var prac=Math.round(sum/24*100);
+    var band = prac>=70?2 : prac>=40?1 : 0;
+
+    show("s-result");
+    $("r-type").textContent=TYPES[tier];
+    $("r-pos").textContent=POS[tier];
+    drawTiers(tier);
+
+    var t0=null, dur=reduce?0:1100;
+    function step(ts){
+      if(!t0)t0=ts;
+      var p=dur?Math.min((ts-t0)/dur,1):1, e=1-Math.pow(1-p,3);
+      $("r-prac").textContent=Math.round(e*prac);
+      if(p<1) requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+    requestAnimationFrame(function(){requestAnimationFrame(function(){
+      $("r-prbar").style.width=prac+"%";
+    });});
+    $("r-mode").textContent=MODES[band];
+    $("r-verdict").textContent=VERDICT[tier][band];
+    $("r-afflict").textContent=AFFLICT[tier];
+    $("r-reading").textContent=READING[tier];
+    $("r-next").textContent=NEXT[tier];
+  }
+
+  /* 蓮花三階層次圖 */
+  function drawTiers(t){
+    var svg=$("tierviz");
+    svg.innerHTML="";
+    var labels=["今生改善","來生思惟","出離思惟"];
+    var xs=[10,150,290], baseY=[64,44,24]; // 逐階上行
+    for(var i=0;i<3;i++){
+      var g=document.createElementNS(NS,"g");
+      g.setAttribute("transform","translate("+xs[i]+","+(baseY[i]-14)+") scale(1)");
+      var on = i===t;
+      var stroke = on ? "#BC7186" : "#B7AB8E";
+      var fill = on ? "#E7C9D1" : null;
+      var tmp=document.createElementNS(NS,"g");
+      LOTUS_PATHS[i].forEach(function(d,j){
+        var p=document.createElementNS(NS,"path");
+        p.setAttribute("d",d);
+        p.setAttribute("fill",(j===0&&fill)?fill:"none");
+        p.setAttribute("stroke",stroke);
+        p.setAttribute("stroke-width", on?2.8:2.2);
+        p.setAttribute("stroke-linecap","round");
+        p.setAttribute("stroke-linejoin","round");
+        tmp.appendChild(p);
+      });
+      var w=document.createElementNS(NS,"path");
+      w.setAttribute("d","M34 80 Q70 88 106 80");
+      w.setAttribute("fill","none");w.setAttribute("stroke",stroke);
+      w.setAttribute("stroke-width",1.5);w.setAttribute("opacity",".5");
+      w.setAttribute("stroke-linecap","round");
+      tmp.appendChild(w);
+      g.appendChild(tmp);
+      svg.appendChild(g);
+      // 標籤
+      var tx=document.createElementNS(NS,"text");
+      tx.setAttribute("x",xs[i]+70);tx.setAttribute("y",baseY[i]+92);
+      tx.setAttribute("text-anchor","middle");tx.setAttribute("font-size","14");
+      tx.setAttribute("fill", on?"#3A3128":"#7A6E5B");
+      tx.setAttribute("font-weight", on?"700":"400");
+      tx.setAttribute("font-family",'"PingFang TC","Heiti TC",sans-serif');
+      tx.textContent=labels[i];
+      svg.appendChild(tx);
+      if(on){
+        var t2=document.createElementNS(NS,"text");
+        t2.setAttribute("x",xs[i]+70);t2.setAttribute("y",baseY[i]-2);
+        t2.setAttribute("text-anchor","middle");t2.setAttribute("font-size","12");
+        t2.setAttribute("fill","#BC7186");t2.setAttribute("font-weight","600");
+        t2.setAttribute("font-family",'"PingFang TC","Heiti TC",sans-serif');
+        t2.textContent="你在這裡";
+        svg.appendChild(t2);
+      }
+    }
+  }
+
+  /* 靜態蓮花裝飾 */
+  lotus($("heroLotus"), 2, "#7D6023", "#EFE7D4", 2.6);
+  ["ic1","ic2","ic3","ic4","ic5"].forEach(function(id){
+    lotus($(id), 1, "#9C7A2F", null, 7);
+  });
+  lotus($("divLotus"), 2, "#BC7186", null, 5);
+
+  /* wiring */
+  $("start").addEventListener("click",function(){ path=[]; renderTree(); show("s-tree"); });
+  $("toStage2").addEventListener("click",function(){ cur=0; answers=new Array(8).fill(null); renderQ(); show("s-quiz"); });
+  $("restart").addEventListener("click",function(){ path=[]; tier=null; answers=new Array(8).fill(null); cur=0; show("s-intro"); });
+})();
+</script>
+</body>
+</html>
